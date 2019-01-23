@@ -1,4 +1,4 @@
-TL;DR
+Wikipedia Dump Processing
 ------------
 Script for processing wikipedia dumps (in any language) and extracting useful metadata (inter-language links, how often a string refers to a wikipage etc.) from it.
 
