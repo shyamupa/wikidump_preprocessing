@@ -53,7 +53,7 @@ Wikipedia dumps are already available under `/shared/corpora/wikipedia_dumps`, s
 
 3. Specify a `OUTDIR`. This is the directory where the resources will be generated (eg. `path/to/my/resources/trwiki` for Turkish Wikipedia). To keep the code generic, you may want to use the `lang` variable to define the `OUTDIR` (e.g., `path/to/my/resources/${lang}wiki`).
 
-4. (Optional) Modify the `DATE` variable to identify the timestamp of the Wikipedia dump to download.
+4. Modify the `DATE` variable to identify the timestamp of the Wikipedia dump to download. Make sure that this link works `https://dumps.wikimedia.org/${lang}wiki/${DATE}/`.
 
 5. Make sure `PYTHONBIN` points to the correct python binary.
 
