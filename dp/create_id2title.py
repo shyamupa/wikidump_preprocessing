@@ -31,6 +31,83 @@ class TitleProcessor(BasicPageProcessor):
     def finish(self):
         self.out.close()
 
+def parse_schema(wikiprefix, encoding):
+    """
+    Parameters
+    ----------------
+    wikiprefix: str
+        The prefix for the data file ()
+
+    Returns
+    ---------------
+    Dictionary that maps field name to zero indexed number
+    For instance, given:
+    ...
+    `page_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+    `page_namespace` int(11) NOT NULL DEFAULT '0',
+    `page_title` varbinary(255) NOT NULL DEFAULT '',
+    `page_restrictions` tinyblob NOT NULL,
+    ...
+    This should return {`page_id` : 0, `page_namespace` : 1, `page_title` : 2, `page_restrictions` : 3}
+    """
+    schema = {}
+    filename = wikiprefix + "-page.sql.gz"
+    logging.info("Parsing schema for %s", filename)
+    f = gzip.open(filename, "rt", encoding=encoding)
+    current_index = 0
+    start_parse = False
+    fields = []
+    for line in f:
+        if start_parse:
+            if not "PRIMARY KEY" in line:
+                fields.append(line)
+            else:
+                break
+        else:
+            if not line.startswith("CREATE TABLE"):
+                continue
+            else:
+                start_parse = True
+    f.close()
+    for i, s in enumerate(fields):
+        schema[s.split()[0][1:-1]] = i
+    return schema
+
+
+def split_str(split_char, split_str):
+    """
+    Parameters
+    -------------
+    split_char: char
+        The character to split upon
+    split_str: str
+        The string to split
+
+    Returns
+    -------------
+    List of string tokens splitted by split_char
+    
+    This takes care of corner cases such as quotation: "xx,xx" and escape character, 
+    which will not be handled correctly by python split function.
+    """
+    return_list = []
+    i = 0
+    last_pos = 0
+    while (i < len(split_str)):
+        if split_str[i] == '\'':
+            i += 1
+            while split_str[i] != '\'' and i < len(split_str):
+                if split_str[i] == '\\':
+                    i += 2
+                else:
+                    i += 1
+        else:
+            if split_str[i] == split_char:
+                return_list.append(split_str[last_pos:i])
+                last_pos = i + 1
+        i += 1
+    return_list.append(split_str[last_pos:])
+    return return_list
 
 def read_id2title(wikiprefix, encoding, outpath):
     """
@@ -38,6 +115,7 @@ def read_id2title(wikiprefix, encoding, outpath):
     """
     filename = wikiprefix + "-page.sql.gz"
     logging.info("Reading id2title sql" + filename)
+    schema = parse_schema(wikiprefix, encoding)
     f = gzip.open(filename, "rt", encoding=encoding)
     bad = 0
     with open(outpath, "w") as out:
@@ -48,21 +126,22 @@ def read_id2title(wikiprefix, encoding, outpath):
         for line in f:
             if "INSERT INTO" not in line:
                 continue
-            # (id,ns,title,restrictions,counter,is_redirect,is_new,...),(id,ns,...)
             start = line.index("(")
             line = line[start + 1:]
             parts = line.split("),(")
             for part in parts:
-                id_ns, page_title, tmp = part.split(",'")[:3]
-                page_id, ns = id_ns.split(",")
+                all_fields = split_str(',', part)
+                if (len(all_fields) != len(schema)):
+                    logging.info("warning: ignore part as number of fields does not match schema %s, %d but expected %d", part, len(all_fields), len(schema))
+                    bad += 1
+                    continue
+                page_id = all_fields[schema['page_id']]
+                ns = all_fields[schema['page_namespace']]
+                page_title = all_fields[schema['page_title']]
                 # only ns 0 is genuine page, others are discussions, category pages etc.
                 if ns != "0":
                     continue
-                if len(tmp.split(",")) != 5:
-                    logging.info("bad#%d %s", bad, part)
-                    bad += 1
-                    continue
-                restrictions, counter, is_redirect, is_new, page_random = tmp.split(",")
+                is_redirect = all_fields[schema['page_is_redirect']]
                 page_title = page_title[:len(page_title) - 1]
                 if "\\" in page_title:
                     page_title = page_title.replace("\\", "")
@@ -70,6 +149,7 @@ def read_id2title(wikiprefix, encoding, outpath):
                 buf = "\t".join([page_id, page_title, is_redirect])
                 # buf = "\t".join([page_id, page_title])
                 out.write(buf + "\n")
+        logging.info("warning: total bad formats in file: %d", bad)
 
 
 def load_disambiguation_ids(wikipath):
