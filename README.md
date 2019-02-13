@@ -21,9 +21,15 @@ This repository contains scripts to perform the following preprocessing steps.
 
 2. Extract text with hyperlinks from the \*pages-articles.xml.bz2 file (target `text` in `makefile`), using the [wikiextractor](https://github.com/attardi/wikiextractor).
 
-3. Create Wikipedia page id to page title map using \*page.sql.gz (target `id2title` in `makefile`).
+### Wikipedia Page ID to Page Title Map
+Create Wikipedia page id to page title map using \*page.sql.gz (target `id2title` in `makefile`).
 
-4. Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). Redirects tell you that the wikipedia link [POTUS44](https://en.wikipedia.org/wiki/POTUS44) redirects to the page [Barack_Obama](https://en.wikipedia.org/wiki/Barack_Obama) in the English Wikipedia.
+Every Wikipedia page is associated with a unique page id. For instance, the page has the page id 534366. You can verify this by visiting https://en.wikipedia.org/?curid=534366 or visiting the page information link on the Tools panel on the left on the Wikipedia page. This page id serves as the canonical identifier of the page, and is used in other dump files (e.g., redirect.sql.gz etc.) to refer to the page.
+
+### Wikipedia Page Redirects to Page Title Map
+Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
+
+Redirects tell you that the wikipedia link [POTUS44](https://en.wikipedia.org/wiki/POTUS44) redirects to the page [Barack_Obama](https://en.wikipedia.org/wiki/Barack_Obama) in the English Wikipedia.
 
 5. Create a inter-language link mapping from Wikipedia titles to English Wikipedia titles using \*langlinks.sql.gz (target `langlinks` in `makefile`). Inter-language links indicate that the page [Barack_Obama](https://en.wikipedia.org/wiki/Barack_Obama) in English Wikipedia is for the same entity as the page [बराक_ओबामा](https://hi.wikipedia.org/wiki/%E0%A4%AC%E0%A4%B0%E0%A4%BE%E0%A4%95_%E0%A4%93%E0%A4%AC%E0%A4%BE%E0%A4%AE%E0%A4%BE) in Hindi Wikipedia.
 
