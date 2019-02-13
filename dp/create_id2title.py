@@ -41,12 +41,11 @@ def parse_schema(wikiprefix, encoding):
     filename = wikiprefix + "-page.sql.gz"
     logging.info("Parsing schema for %s", filename)
     f = gzip.open(filename, "rt", encoding=encoding)
-    current_index = 0
     start_parse = False
     fields = []
     for line in f:
         if start_parse:
-            if not "PRIMARY KEY" in line:
+            if "PRIMARY KEY" not in line:
                 fields.append(line)
             else:
                 break
@@ -129,7 +128,9 @@ def read_id2title(wikiprefix, encoding, outpath):
                 if ns != "0":
                     continue
                 is_redirect = all_fields[schema['page_is_redirect']]
-                page_title = page_title.strip("'")
+                # strip out the single quotes around 'Title'
+                # page_title.strip("'") might remove genuine extra quotes around some titles, so should not be used
+                page_title = page_title[1:-1]
                 if "\\" in page_title:
                     page_title = page_title.replace("\\", "")
                 # print(part)
