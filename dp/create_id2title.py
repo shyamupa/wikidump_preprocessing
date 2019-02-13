@@ -107,9 +107,6 @@ def read_id2title(wikiprefix, encoding, outpath):
     f = gzip.open(filename, "rt", encoding=encoding)
     bad = 0
     with open(outpath, "w") as out:
-        if "zhwiki" in wikiprefix:
-            buf = "\t".join(["9999999", "杰布·布什", "1"])
-            out.write(buf + "\n")
 
         for line in f:
             if "INSERT INTO" not in line:
@@ -132,7 +129,7 @@ def read_id2title(wikiprefix, encoding, outpath):
                 if ns != "0":
                     continue
                 is_redirect = all_fields[schema['page_is_redirect']]
-                page_title = page_title[:len(page_title) - 1]
+                page_title = page_title.strip("'")
                 if "\\" in page_title:
                     page_title = page_title.replace("\\", "")
                 # print(part)
