@@ -6,6 +6,7 @@ import sys
 logging.basicConfig(format='%(asctime)s: %(filename)s:%(lineno)d: %(message)s', level=logging.INFO)
 from utils.misc_utils import load_id2title
 import gzip
+from .dp_common import *
 
 
 def read_redirects(filename, encoding, id2t):
@@ -15,7 +16,11 @@ def read_redirects(filename, encoding, id2t):
     logging.info("Reading redirects sql" + filename)
     redirect2title = {}
     total, missed = 0, 0
-
+    schema = parse_schema(filename, encoding)
+    if 'rd_from' not in schema:
+        raise RuntimeException('Redirect from id not found in schema!')
+    if 'rd_title' not in schema:
+        raise RuntimeException('Redirect title not found in schema!')
     f = gzip.open(filename, "rt", encoding=encoding,errors="ignore")
     for line in f:
         if "INSERT INTO" not in line:
@@ -24,13 +29,14 @@ def read_redirects(filename, encoding, id2t):
         line = line[start + 1:]
         parts = line.split("),(")
         for part in parts:
-            id_ns, title = part.split(",'")[:2]
-            redirect_page_id, ns = id_ns.split(',')
+            all_fields = split_str(',', part)
+            redirect_page_id = all_fields[schema['rd_from']]
+            title = all_fields[schema['rd_title']]
             # THIS GETS MISSED BECAUSE WE DO NOT HAVE FR ID TO TITLE FOR ALL PAGES
-            title = title[:len(title) - 1]
-            title = title.replace(" ", "_")
-            if "\\" in title:
-                title = title.replace("\\", "")
+            #title = title[:len(title) - 1]
+            #title = title.replace(" ", "_")
+            #if "\\" in title:
+            #    title = title.replace("\\", "")
             # print(list(id2t.keys())[0:5])
             if redirect_page_id in id2t:
                 re_title = id2t[redirect_page_id]
