@@ -22,15 +22,22 @@ This repository contains scripts to perform the following preprocessing steps.
 2. Extract text with hyperlinks from the \*pages-articles.xml.bz2 file (target `text` in `makefile`), using the [wikiextractor](https://github.com/attardi/wikiextractor).
 
 ### Wikipedia Page ID to Page Title Map
-Creates Wikipedia page id to page title map using \*page.sql.gz (target `id2title` in `makefile`).
+Creates Wikipedia page id to page title map using \*page.sql.gz (target `id2title` in `makefile`). The result is saved in ${OUTDIR}/${lang}wiki/idmap/${lang}wiki-data.id2t
 
 Every Wikipedia page is associated with a unique page id. 
 For instance, the page [Barack_Obama](https://en.wikipedia.org/wiki/Barack_Obama) in the English Wikipedia has the page id 534366. 
 You can verify this by visiting https://en.wikipedia.org/?curid=534366 or visiting the page information link on the Tools panel on the left on the Wikipedia page. 
 This page id serves as the canonical identifier of the page, and is used in other dump files (e.g., enwiki-\*-redirect.sql.gz etc.) to refer to the page. 
 
-The output map is a tsv file that looks like TODO
+The output map is a tsv file that looks like this (example from Turkish wiki dump for 20181020):
 
+10	Cengiz_Han	0
+16	Film_(anlam_ayrımı)	0
+22	Mustafa_Suphi	0
+24	Linux	0
+25	MHP	1
+
+Each line represents an entry for one page, where the first field is the page id, the second field is the page title, and the third field is a boolean indicating whether the page is redirection.
 
 ### Wikipedia Page Redirects to Page Title Map
 Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
