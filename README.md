@@ -31,13 +31,32 @@ This page id serves as the canonical identifier of the page, and is used in othe
 
 The output map is a tsv file that looks like this (example from Turkish wiki dump for 20181020):
 
+````
 10	Cengiz_Han	0
 16	Film_(anlam_ayrımı)	0
 22	Mustafa_Suphi	0
 24	Linux	0
 25	MHP	1
+````
 
 Each line represents an entry for one page, where the first field is the page id, the second field is the page title, and the third field is a boolean indicating whether the page is redirection.
+
+### Wikipedia Page hyperlink json output
+From the dump file, output the wiki page id,raw text and hyperlinks(with span) to a json file.
+Add the following to the make file line after line 43:
+````
+links:
+	@if [ "${OUTDIR}/${lang}wiki_with_links" ]; then \
+	echo $(OK_COLOR) "extracting links to ${OUTDIR}/link_in_pages" $(NO_COLOR); \
+	mkdir -p ${OUTDIR}/link_in_pages; \
+	${PYTHONBIN} -m dp.extract_link_from_pages --dump ${OUTDIR}/${lang}wiki_with_links/ --out ${OUTDIR}/link_in_pages; \
+	fi
+````
+Change the argument of make all to:
+````
+all:	dumps softlinks text links id2title redirects langlinks countsmap probmap
+````
+The processed json files are saved in outdir/link_in_pages
 
 ### Wikipedia Page Redirects to Page Title Map
 Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
