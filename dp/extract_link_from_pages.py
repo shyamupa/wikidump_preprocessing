@@ -1,12 +1,13 @@
 # coding=utf-8
 
-from bs4 import *
-from multiprocessing import Pool
+from bs4 import BeautifulSoup
+from dp.title_normalizer import TitleNormalizer
+from utils.misc_utils import load_id2title, load_redirects
 import argparse
 import sys
 import os
 import json
-
+import copy
 
 class LinkInfo:
     def __init__(self, link_full_text, text, href):
@@ -45,11 +46,12 @@ class LinkInfo:
         return self._processed_start
 
     def as_result(self):
-        return {'start': self._processed_start, 'end': self._processed_start + len(self._text), 'label': self._href}
+        return {'start': self._processed_start, 'end': self._processed_start + len(self._text), 'label': self._text}
 
 
-def extract_from_one_file(file_path, encoding, out_path):
+def extract_from_one_file(file_path, encoding, out_path, normalizer):
     pages = []
+    pages_brief = []
     doc_count = 0
     with open(file_path, 'r', encoding=encoding) as f:
         soup = BeautifulSoup(f, "html.parser")
@@ -95,21 +97,30 @@ def extract_from_one_file(file_path, encoding, out_path):
             first_processed_loc = current_location
             first_raw_loc = list_of_links[0].location_raw()
             shrunk_char_count += list_of_links[0].extra_count()
+            this_page_brief = copy.copy(this_page)
+            this_page_brief.pop('linked_spans', None)
+            pages_brief.append(this_page_brief)
             this_page['linked_spans'].append(list_of_links[0].as_result())
             for i in range(len(list_of_links) - 1):
                 current_link = list_of_links[i + 1]
                 current_link.set_processed_loc(
                     current_link.location_raw() - first_raw_loc + first_processed_loc - shrunk_char_count)
                 shrunk_char_count += current_link.extra_count()
-                this_page['linked_spans'].append(current_link.as_result())
+                link_result = current_link.as_result()
+                link_result['label'] = normalizer.normalize(link_result['label'])
+                this_page['linked_spans'].append(link_result)
 
             pages.append(this_page)
+    dir_to_write = os.path.dirname(out_path)
+    os.makedirs(dir_to_write, exist_ok=True)
     with open(out_path, 'w') as out_f:
         out_f.write(json.dumps(pages, indent=4))
+    with open("%s.brief" % out_path, 'w') as out_f:
+        out_f.write(json.dumps(pages_brief, indent=4))
     return doc_count
 
 
-def extract_links(dump_prefix, out, encoding):
+def extract_links(dump_prefix, out, encoding, normalizer):
     dump_prefix_abs = os.path.abspath(dump_prefix)
     all_files = []
     for directory in os.listdir(path=dump_prefix_abs):
@@ -121,7 +132,9 @@ def extract_links(dump_prefix, out, encoding):
     count = 0
     doc_count = 0
     for wiki in all_files:
-        doc_count += extract_from_one_file(wiki, encoding, os.path.join(out, "%d.json" % count))
+        original_dir = os.path.basename(os.path.dirname(wiki))
+        original_file_name = os.path.basename(wiki)
+        doc_count += extract_from_one_file(wiki, encoding, os.path.join(out, "%s/%s.json" % (original_dir, original_file_name)), normalizer)
         count += 1
         sys.stdout.write("\b[%10d / %10d] Files, %10d Articles Processed, Done File: %s\r" % (
         count, len(all_files), doc_count, wiki))
@@ -136,6 +149,14 @@ if __name__ == "__main__":
                         help='prefix to the dumped pages, e.g., trwiki_with_links')
     parser.add_argument('--out', type=str, required=True,
                         help='json file to write the link info in. eg. trwiki-20170420.json')
+    parser.add_argument('--id2t', type=str, required=True, help='id --> title')
+    parser.add_argument('--redirects', type=str, required=True, help='redirect --> title')
+    parser.add_argument('--lang', type=str, required=True, help='language code')
     args = parser.parse_args()
     args = vars(args)
-    extract_links(dump_prefix=args["dump"], out=args["out"], encoding="utf-8")
+    redirect2title = load_redirects(args["redirects"])
+    id2t, t2id, is_redirect_map = load_id2title(args["id2t"])
+    normalizer = TitleNormalizer(lang=args['lang'],
+                                 redirect_map=redirect2title,
+                                 t2id=t2id)
+    extract_links(dump_prefix=args["dump"], out=args["out"], encoding="utf-8", normalizer=normalizer)

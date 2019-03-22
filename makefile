@@ -10,17 +10,17 @@ ERROR_STRING = "[ERROR]"
 WARN_STRING  = "[WARNING]"
 COM_STRING   = "Compiling"
 
-DATE=20180720
+DATE=20181001
 # location where dumps are downloaded
-DUMPDIR = "/Users/Shyam/code/python_code/wikidump_preprocessing/dumpdir"
+DUMPDIR = "/Users/nicolette/Documents/nlp-wiki/dumpdir"
 
 # good practice to make this different from the dumpdir, to separate
 # resources from processed output
-OUTDIR = "/Users/Shyam/code/python_code/wikidump_preprocessing/outdir/${lang}wiki"
-WIKIEXTRACTOR = "/Users/Shyam/code/python_code/wikiextractor/WikiExtractor.py"
+OUTDIR = "/Users/nicolette/Documents/nlp-wiki/outdir"
+WIKIEXTRACTOR = "/Users/nicolette/Documents/nlp-wiki/wikiextractor/WikiExtractor.py"
 ENCODING = utf-8
 # path to python3 binary
-PYTHONBIN = /Users/Shyam/miniconda3/bin/python
+PYTHONBIN = /Users/nicolette/anaconda2/envs/py3/bin/python
 dumps:
 	@if [ -f "${DUMPDIR}/${lang}wiki/${lang}wiki-${DATE}-pages-articles.xml.bz2" ]; then \
 	echo $(ERROR_COLOR) "dump exists in ${DUMPDIR}!" $(NO_COLOR); \
@@ -58,6 +58,16 @@ redirects: dumps softlinks id2title
 	--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
 	--wiki ${OUTDIR}/${lang}wiki-${DATE} \
 	--out ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
+	fi
+links: text id2title redirects
+	@if [ "${OUTDIR}/${lang}wiki_with_links" ]; then \
+	echo $(OK_COLOR) "extracting links to ${OUTDIR}/link_in_pages" $(NO_COLOR); \
+	mkdir -p ${OUTDIR}/link_in_pages; \
+	${PYTHONBIN} -m dp.extract_link_from_pages --dump ${OUTDIR}/${lang}wiki_with_links/ \
+	--out ${OUTDIR}/link_in_pages \
+	--lang ${lang} \
+	--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
+	--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
 	fi
 langlinks: dumps id2title redirects
 	@if [ -f "${OUTDIR}/idmap/fr2entitles" ]; then \
@@ -103,5 +113,5 @@ probmap: id2title redirects countsmap langlinks
 	--out_prefix ${OUTDIR}/probmap/${lang}wiki-${DATE} \
 	--lang ${lang}; \
 	fi	
-all:	dumps softlinks text id2title redirects langlinks countsmap probmap
+all:	dumps softlinks text id2title redirects links langlinks countsmap probmap
 	echo "all done"

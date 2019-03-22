@@ -43,20 +43,26 @@ Each line represents an entry for one page, where the first field is the page id
 
 ### Wikipedia Page hyperlink json output
 From the dump file, output the wiki page id,raw text and hyperlinks(with span) to a json file.
-Add the following to makefile after line 43 (depend on completion of make text):
+Add the following to makefile after make redirects:
 ````
-links:
+links: text id2title redirects
 	@if [ "${OUTDIR}/${lang}wiki_with_links" ]; then \
 	echo $(OK_COLOR) "extracting links to ${OUTDIR}/link_in_pages" $(NO_COLOR); \
 	mkdir -p ${OUTDIR}/link_in_pages; \
-	${PYTHONBIN} -m dp.extract_link_from_pages --dump ${OUTDIR}/${lang}wiki_with_links/ --out ${OUTDIR}/link_in_pages; \
+	${PYTHONBIN} -m dp.extract_link_from_pages --dump ${OUTDIR}/${lang}wiki_with_links/ \
+	--out ${OUTDIR}/link_in_pages \
+	--lang ${lang} \
+	--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
+	--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
 	fi
 ````
-Change the argument of make all(second to last line) to:
+Change the argument of make all (second to last line) to:
 ````
-all:	dumps softlinks text links id2title redirects langlinks countsmap probmap
+all: dumps softlinks text id2title redirects links langlinks countsmap probmap
 ````
-The processed json files are saved in outdir/link_in_pages
+The processed json files are saved in outdir/link_in_pages.
+The .json.brief file contains only the curid, title and raw text.
+The .json file has all the hyperlinks and spans within each wiki page.
 
 ### Wikipedia Page Redirects to Page Title Map
 Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
