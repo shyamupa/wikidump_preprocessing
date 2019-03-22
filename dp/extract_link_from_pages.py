@@ -125,9 +125,10 @@ def extract_links(dump_prefix, out, encoding, normalizer):
     all_files = []
     for directory in os.listdir(path=dump_prefix_abs):
         subdir = os.path.join(dump_prefix_abs, directory)
-        for f in os.listdir(path=subdir):
-            full_path = os.path.join(subdir, f)
-            all_files.append(full_path)
+        if os.path.isdir(subdir):
+            for f in os.listdir(path=subdir):
+                full_path = os.path.join(subdir, f)
+                all_files.append(full_path)
     pages = []
     count = 0
     doc_count = 0
