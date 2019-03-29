@@ -59,12 +59,12 @@ redirects: dumps softlinks id2title
 	--wiki ${OUTDIR}/${lang}wiki-${DATE} \
 	--out ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
 	fi
-links: text id2title redirects
+hyperlinks: text id2title redirects
 	@if [ "${OUTDIR}/${lang}wiki_with_links" ]; then \
-	echo $(OK_COLOR) "extracting links to ${OUTDIR}/link_in_pages" $(NO_COLOR); \
-	mkdir -p ${OUTDIR}/link_in_pages; \
+	echo $(OK_COLOR) "extracting links to ${OUTDIR}/${lang}link_in_pages" $(NO_COLOR); \
+	mkdir -p ${OUTDIR}/${lang}link_in_pages; \
 	${PYTHONBIN} -m dp.extract_link_from_pages --dump ${OUTDIR}/${lang}wiki_with_links/ \
-	--out ${OUTDIR}/link_in_pages \
+	--out ${OUTDIR}/${lang}link_in_pages \
 	--lang ${lang} \
 	--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
 	--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
@@ -113,5 +113,5 @@ probmap: id2title redirects countsmap langlinks
 	--out_prefix ${OUTDIR}/probmap/${lang}wiki-${DATE} \
 	--lang ${lang}; \
 	fi	
-all:	dumps softlinks text id2title redirects links langlinks countsmap probmap
+all:	dumps softlinks text id2title redirects hyperlinks langlinks countsmap probmap
 	echo "all done"

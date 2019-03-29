@@ -9,6 +9,8 @@ import os
 import json
 import copy
 import logging
+
+logging.basicConfig(format='%(asctime)s: %(filename)s:%(lineno)d: %(message)s', level=logging.INFO)
 import urllib.parse
 
 """
@@ -111,16 +113,30 @@ def extract_from_one_file(file_path, encoding, out_path, normalizer, ignore_null
                     next_node = c.next_sibling
                     if prev_node is None and next_node is None:
                         raise RuntimeError("Page contained one link and nothing else, is data corrupted?")
+                    # Skip the links that has its text section as nested tag (for example, the <nowiki> links)
                     if len(c.contents) != 1:
                         continue
                     if c.contents[0].name is not None:
                         continue
 
+                    # Text of the link, for instance, in the link <a href=xxx>link</a>, text is 'link'
+                    link_text = c.contents[0]
+
+                    # The text of previous node (usually just text paragraph), the link node's text, and the next node's text will uniquely identify the location of the link in the text
+                    # For instance, if we have the following selection from an article:
+                    # 
+                    # Consider this <a href='Article'>article</a> which contains a link
+                    #
+                    # In the case above, link node would be <a href='Article'>article</a>, prev_node would be the string 'Consider this ', and next_node would be ' which contains a link'
+                    # The assembled search string would be 'Consider this article which contains a link'. Searching that in the processed text of the web page would give us the location of the search string
+                    # We then add length of the prev_node to that location to get the location of the link
+                    # Notice that there is a chance that this search string may appear more than once. For this purpose, we keep a record of last search position and starts every new search from that. 
                     prev_node_search_str = ""
                     if prev_node is not None:
                         if prev_node.name is None:
                             prev_node_search_str = prev_node
                         else:
+                            # handle the case when the prev_node is also a link
                             prev_node.get_text()
                     next_node_search_str = ""
                     if next_node is not None:
@@ -128,10 +144,11 @@ def extract_from_one_file(file_path, encoding, out_path, normalizer, ignore_null
                             next_node_search_str = next_node
                         else:
                             next_node.get_text()
-                    loc = this_page['text'].find(prev_node_search_str + c.contents[0] + next_node_search_str,
+                    link_and_adjacent_text_search_str = prev_node_search_str + link_text + next_node_search_str;        
+                    loc = this_page['text'].find(link_and_adjacent_text_search_str,
                                                  next_search_pos)
                     next_search_pos = loc + 1
-                    this_link_info = LinkInfo(c.contents[0], c['href'])
+                    this_link_info = LinkInfo(link_text, c['href'])
                     this_link_info.set_location(loc + len(prev_node_search_str))
                     link_result = this_link_info.as_result()
 
@@ -224,7 +241,9 @@ def extract_links(dump_prefix, out, encoding, normalizer, ignore_null):
             all_dirs.append(subdir)
     ps = []
     for directory in all_dirs:
-        ps.append(Process(target=extract_from_one_directory, args=(directory, out, encoding, normalizer, ignore_null)))
+        # Start one process per subdirectory
+        proc = Process(target=extract_from_one_directory, args=(directory, out, encoding, normalizer, ignore_null));
+        ps.append(proc)
         logging.info("Started new process to handle directory %s" % directory)
     for p in ps:
         p.start()
