@@ -69,6 +69,13 @@ hyperlinks: text id2title redirects
 	--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
 	--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
 	fi
+mid: hyperlinks
+	${PYTHONBIN} -m dp.create_mid --dump ${OUTDIR}/${lang}link_in_pages \
+		--out ${OUTDIR}/{lang}training_files \
+		--lang ${lang} \
+		--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
+		--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t \
+		--window ${window}
 langlinks: dumps id2title redirects
 	@if [ -f "${OUTDIR}/idmap/fr2entitles" ]; then \
 	echo $(ERROR_COLOR) "fr2entitle exists!" $(NO_COLOR); \
