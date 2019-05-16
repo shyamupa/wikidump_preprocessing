@@ -10,7 +10,9 @@ ERROR_STRING = "[ERROR]"
 WARN_STRING  = "[WARNING]"
 COM_STRING   = "Compiling"
 
-DATE=20181001
+DATE=20190420
+lang=tr
+window=20
 # location where dumps are downloaded
 DUMPDIR = "/Users/nicolette/Documents/nlp-wiki/dumpdir"
 
@@ -60,8 +62,9 @@ redirects: dumps softlinks id2title
 	--out ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
 	fi
 hyperlinks: text id2title redirects
-	@if [ "${OUTDIR}/${lang}wiki_with_links" ]; then \
-	echo $(OK_COLOR) "extracting links to ${OUTDIR}/${lang}link_in_pages" $(NO_COLOR); \
+	@if [ -d "${OUTDIR}/${lang}link_in_pages" ]; then \
+	echo ${ERROR_COLOR} "hyperlink already extracted!" ${NO_COLOR} ; \
+	else echo $(OK_COLOR) "extracting links to ${OUTDIR}/${lang}link_in_pages" $(NO_COLOR); \
 	mkdir -p ${OUTDIR}/${lang}link_in_pages; \
 	${PYTHONBIN} -m dp.extract_link_from_pages --dump ${OUTDIR}/${lang}wiki_with_links/ \
 	--out ${OUTDIR}/${lang}link_in_pages \
@@ -70,12 +73,17 @@ hyperlinks: text id2title redirects
 	--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t; \
 	fi
 mid: hyperlinks
+	@if [ -d "${OUTDIR}/${lang}mid" ]; then \
+	echo $(ERROR_COLOR) "training files already there" $(NO_COLOR); \
+	else echo $(OK_COLOR) "extracting training files to $(OUTDIR)/${lang}mid" $(NO_COLOR); \
+	mkdir -p $(OUTDIR)/${lang}mid; \
 	${PYTHONBIN} -m dp.create_mid --dump ${OUTDIR}/${lang}link_in_pages \
-		--out ${OUTDIR}/{lang}training_files \
+		--out ${OUTDIR}/${lang}mid \
 		--lang ${lang} \
 		--id2t ${OUTDIR}/idmap/${lang}wiki-${DATE}.id2t \
 		--redirects ${OUTDIR}/idmap/${lang}wiki-${DATE}.r2t \
-		--window ${window}
+		--window ${window} ; \
+	fi
 langlinks: dumps id2title redirects
 	@if [ -f "${OUTDIR}/idmap/fr2entitles" ]; then \
 	echo $(ERROR_COLOR) "fr2entitle exists!" $(NO_COLOR); \
