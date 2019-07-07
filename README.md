@@ -47,6 +47,9 @@ The processed json files are saved in outdir/link_in_pages.
 The .json.brief file contains only the curid, title and raw text.
 The .json file has all the hyperlinks and spans within each wiki page.
 
+### Wikipedia Training Data for xling-el
+The [xling-el](https://github.com/shyamupa/xling-el) project for cross-lingual entity linking requires training data to be provided in a certain format. Generating this data from wikipedia text is handled in the `mid` target in the makefile. 
+
 ### Wikipedia Page Redirects to Page Title Map
 Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
 
