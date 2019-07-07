@@ -22,7 +22,7 @@ This repository contains scripts to perform the following preprocessing steps.
 2. Extract text with hyperlinks from the \*pages-articles.xml.bz2 file (target `text` in `makefile`), using the [wikiextractor](https://github.com/attardi/wikiextractor).
 
 ### Wikipedia Page ID to Page Title Map
-Creates Wikipedia page id to page title map using \*page.sql.gz (target `id2title` in `makefile`). The result is saved in ${OUTDIR}/${lang}wiki/idmap/${lang}wiki-data.id2t
+Creates Wikipedia page id to page title map using \*page.sql.gz (target `id2title` in `makefile`). The result is saved in `${OUTDIR}/${lang}wiki/idmap/${lang}wiki-data.id2t`
 
 Every Wikipedia page is associated with a unique page id. 
 For instance, the page [Barack_Obama](https://en.wikipedia.org/wiki/Barack_Obama) in the English Wikipedia has the page id 534366. 
@@ -43,12 +43,12 @@ Each line represents an entry for one page, where the first field is the page id
 
 ### Wikipedia Page hyperlink json output
 From the dump file, output the wiki page id,raw text and hyperlinks(with span) to 2 json files.
-The processed json files are saved in outdir/link_in_pages.
+The processed json files are saved in `${OUTDIR}/${lang}link_in_pages`.
 The .json.brief file contains only the curid, title and raw text.
 The .json file has all the hyperlinks and spans within each wiki page.
 
 ### Wikipedia Training Data for xling-el
-The [xling-el](https://github.com/shyamupa/xling-el) project for cross-lingual entity linking requires training data to be provided in a certain format. Generating this data from wikipedia text is handled in the `mid` target in the makefile. 
+The [xling-el](https://github.com/shyamupa/xling-el) project for cross-lingual entity linking requires training data to be provided in a certain format. Generating this data from wikipedia text is handled in the `mid` target in the makefile. The output tab separated files are saved in `${OUTDIR}/${lang}mid`.
 
 ### Wikipedia Page Redirects to Page Title Map
 Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
