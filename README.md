@@ -81,18 +81,19 @@ For ease of use, we provide a `makefile` that specifies targets to automatically
 **For Cogcomp Internal Use**: 
 Wikipedia dumps are already available under `/shared/corpora/wikipedia_dumps`, so simply set the `DUMPDIR` to `/shared/corpora/wikipedia_dumps`. For instance, the Turkish wikipedia resources are in `/shared/corpora/wikipedia_dumps/trwiki`.
 
-3. Specify a `OUTDIR`. This is the directory where the resources will be generated (eg. `path/to/my/resources/trwiki` for Turkish Wikipedia). To keep the code generic, you may want to use the `lang` variable to define the `OUTDIR` (e.g., `path/to/my/resources/${lang}wiki`).
+3. Set the `lang` variable to the two-letter language code used by Wikipedia to identify the language (eg. `tr` for Turkish, `es` for Spanish etc.)
+4. Specify a `OUTDIR`. This is the directory where the resources will be generated (eg. `path/to/my/resources/trwiki` for Turkish Wikipedia). To keep the code generic, you may want to use the `lang` variable to define the `OUTDIR` (e.g., `path/to/my/resources/${lang}wiki`).
 
-4. Modify the `DATE` variable to identify the timestamp of the Wikipedia dump to download. Make sure that this link works `https://dumps.wikimedia.org/${lang}wiki/${DATE}/`.
+5. Modify the `DATE` variable to identify the timestamp of the Wikipedia dump to download. Make sure that this link works `https://dumps.wikimedia.org/${lang}wiki/${DATE}/`.
 
-5. Make sure `PYTHONBIN` points to the correct python binary.
+6. Make sure `PYTHONBIN` points to the correct python binary.
 
-6. Run the command `lang=CODE make all`, where `CODE` is the two-letter language code used by Wikipedia to identify the language (eg. `tr` for Turkish, `es` for Spanish etc.). This should perform all the preprocessing steps above by following the build dependencies specified in the makefile.
+7. Run the command `make all`. This should perform all the preprocessing steps above by following the build dependencies specified in the makefile.
 
 Sanity Check
 ------
 
-After `lang=CODE make all` completes successfully (takes ~18 mins on single-core machine for Turkish Wikipedia), you should have files with following line counts (for 20180720 dump of Turkish Wikipedia),
+After `make all` completes successfully (takes ~18 mins on single-core machine for Turkish Wikipedia), you should have files with following line counts (for 20180720 dump of Turkish Wikipedia),
 
 ````
 222367  idmap/fr2entitles   
