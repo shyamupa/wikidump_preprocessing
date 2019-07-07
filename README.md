@@ -49,12 +49,19 @@ The .json file has all the hyperlinks and spans within each wiki page.
 
 ### Wikipedia Training Data for xling-el
 The [xling-el](https://github.com/shyamupa/xling-el) project for cross-lingual entity linking requires training data to be provided in a certain format. Generating this data from wikipedia text is handled in the `mid` target in the makefile. The training data format is the following fields in a tab separated file,
+
 a. The freebase mid of the wikipedia page.
+
 b. The wikipedia page title.
+
 c. Start token offset of the mention.
+
 d. End token offset of the mention.
+
 e. The mention string.
+
 f. The context around (and including) the mention, of a certain window size. 
+
 g. All other mentions in the same document as the current mention.
 
 The output tab separated files are saved in `${OUTDIR}/${lang}mid`.
