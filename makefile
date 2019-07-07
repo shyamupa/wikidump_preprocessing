@@ -11,18 +11,19 @@ WARN_STRING  = "[WARNING]"
 COM_STRING   = "Compiling"
 
 DATE=20190420
-lang=tr
+lang=hi
+# window size for mention context
 window=20
-# location where dumps are downloaded
-DUMPDIR = "/Users/nicolette/Documents/nlp-wiki/dumpdir"
+# location where wikipedia dumps are downloaded
+DUMPDIR = "/scratch/shyamupa/dumpdir"
 
 # good practice to make this different from the dumpdir, to separate
 # resources from processed output
-OUTDIR = "/Users/nicolette/Documents/nlp-wiki/outdir"
-WIKIEXTRACTOR = "/Users/nicolette/Documents/nlp-wiki/wikiextractor/WikiExtractor.py"
+OUTDIR = "/scratch/shyamupa/outdir"
+WIKIEXTRACTOR = "/scratch/shyamupa/wikiextractor/WikiExtractor.py"
 ENCODING = utf-8
 # path to python3 binary
-PYTHONBIN = /Users/nicolette/anaconda2/envs/py3/bin/python
+PYTHONBIN = /home1/s/shyamupa/miniconda3/bin/python
 dumps:
 	@if [ -f "${DUMPDIR}/${lang}wiki/${lang}wiki-${DATE}-pages-articles.xml.bz2" ]; then \
 	echo $(ERROR_COLOR) "dump exists in ${DUMPDIR}!" $(NO_COLOR); \
@@ -128,5 +129,5 @@ probmap: id2title redirects countsmap langlinks
 	--out_prefix ${OUTDIR}/probmap/${lang}wiki-${DATE} \
 	--lang ${lang}; \
 	fi	
-all:	dumps softlinks text id2title redirects hyperlinks langlinks countsmap probmap
+all:	dumps softlinks text id2title redirects langlinks countsmap probmap hyperlinks mid
 	echo "all done"
