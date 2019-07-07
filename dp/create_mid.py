@@ -2,7 +2,6 @@
 from spacy.tokenizer import Tokenizer
 import json
 import spacy.util
-import csv
 import argparse
 import sys
 import os
@@ -89,11 +88,19 @@ def create_mid_for_one_file(window, filename, tokenizer, encoding, outfile, norm
 
     # dump to file
     with open(outfile, 'w', encoding=encoding) as csvfile:
-        writer = csv.writer(csvfile, dialect='excel-tab')
+        # writer = csv.writer(csvfile, dialect='excel-tab')
         for article in info_to_dump:
             if len(article['links']) > 0:
                 for l in article['links']:
-                    writer.writerow(['MID', article['id'], normalizer.normalize(article['title']), l['start'], l['end'], l['mention'], l['window'], article['mentions']])
+                    buf = "\t".join(['MID',
+                                     article['id'],
+                                     normalizer.normalize(article['title']),
+                                     str(l['start']),
+                                     str(l['end']),
+                                     l['mention'],
+                                     l['window'],
+                                     article['mentions']])
+                    csvfile.write(buf)
 
 
 """
