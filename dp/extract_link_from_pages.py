@@ -272,3 +272,4 @@ if __name__ == "__main__":
                                  t2id=t2id)
     extract_links(dump_prefix=args["dump"], out=args["out"], encoding="utf-8", normalizer=normalizer,
                   ignore_null='preserve-null' not in args)
+

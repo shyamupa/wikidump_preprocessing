@@ -1,6 +1,20 @@
 import os
 import logging
 
+"""
+Helper function to recursively remove .DS_Store file in directories
+"""
+def remove_file(dir, name):
+    l = os.listdir(dir)
+    for entry in l:
+        file_name = dir + os.path.sep + entry
+        if os.path.isdir(file_name):
+            remove_file(file_name, name)
+        else:
+            if os.path.isfile(file_name) and entry == name:
+                print ('removed ' + file_name)
+                os.remove(file_name)
+
 
 class AbstractProcessor(object):
     def __init__(self, wikipath):
@@ -10,6 +24,8 @@ class AbstractProcessor(object):
         pass
 
     def run(self):
+        # Recursively clean .DS_Store files
+        remove_file(self.wikipath, '.DS_Store')
         for dirname in sorted(os.listdir(self.wikipath)):
             dirpath = os.path.join(self.wikipath, dirname)
             logging.info(dirpath)
@@ -32,3 +48,4 @@ class AbstractProcessor(object):
 
     def finish(self):
         pass
+
