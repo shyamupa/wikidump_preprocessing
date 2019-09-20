@@ -5,6 +5,7 @@ import spacy.util
 import argparse
 import sys
 import os
+import multiprocessing
 from multiprocessing import Process
 from dp.title_normalizer import TitleNormalizer
 from utils.misc_utils import load_id2title, load_redirects
@@ -135,7 +136,7 @@ def create_mids(link_dump_prefix, out, encoding, lang, window, normalizer):
     inputs_list = []
     outputs_list = []
     # Get the number of CPUs we are given
-    num_cpus = len(os.sched_getaffinity(0))
+    num_cpus = multiprocessing.cpu_count()
     for i in range(num_cpus):
         inputs_list.append([])
         outputs_list.append([])

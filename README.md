@@ -62,7 +62,7 @@ text: the raw text of this page, with all hyperlinks removed
 linked_spans: a list of all the words appeared in this page that has an outlink to some other page. 
 For those words, we record their starting and ending character position.
 ````
-An example from part of a turkish language wiki.json file:
+An example from part of a turkish language wiki.json file (from 2019/05/01 dump):
 ````
 "title": "Kimya",
         "curid": "58",
@@ -106,6 +106,26 @@ f. The context around (and including) the mention, of a certain window size.
 g. All other mentions in the same document as the current mention.
 
 The output tab separated files are saved in `${OUTDIR}/${lang}mid`.
+
+Here is a line of example output from Turkish wiki (from 2018/11/01 dump):
+````
+MID 163500  Krokau  4   4   Almanya     Almanya Schleswig-Holstein Plön_(il) Almanya'nın_belediyeleri 31_Aralık 2015
+````
+The tab-separated fields, are, from left to right:
+
+1. MID keyword
+
+2. Page ID of the Wiki page
+
+3. Normalized page title
+
+4. Start index of the tokens that contains a mention
+
+5. End index of the tokens that contains a mention
+
+6. The context for the mention. It contains n characters before and after the mention, where n is the window size.
+
+7. All mentions in the same page.
 
 ### Wikipedia Page Redirects to Page Title Map
 Redirects map using \*redirect.sql.gz (target `redirects` in `makefile`). 
