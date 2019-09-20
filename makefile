@@ -10,20 +10,20 @@ ERROR_STRING = "[ERROR]"
 WARN_STRING  = "[WARNING]"
 COM_STRING   = "Compiling"
 
-DATE=20190420
-lang=hi
+DATE=20190501
+lang=tr
 # window size for mention context
 window=20
 # location where wikipedia dumps are downloaded
-DUMPDIR = "/scratch/shyamupa/dumpdir"
+DUMPDIR = "/Users/nicolette/Documents/nlp-wiki/dumpdir"
 
 # good practice to make this different from the dumpdir, to separate
 # resources from processed output
-OUTDIR = "/scratch/shyamupa/outdir"
-WIKIEXTRACTOR = "/scratch/shyamupa/wikiextractor/WikiExtractor.py"
+OUTDIR = "/Users/nicolette/Documents/nlp-wiki/outdir"
+WIKIEXTRACTOR = "/Users/nicolette/Documents/nlp-wiki/wikiextractor/WikiExtractor.py"
 ENCODING = utf-8
 # path to python3 binary
-PYTHONBIN = /home1/s/shyamupa/miniconda3/bin/python
+PYTHONBIN = /Users/nicolette/anaconda2/envs/py3/bin/python
 dumps:
 	@if [ -f "${DUMPDIR}/${lang}wiki/${lang}wiki-${DATE}-pages-articles.xml.bz2" ]; then \
 	echo $(ERROR_COLOR) "dump exists in ${DUMPDIR}!" $(NO_COLOR); \
