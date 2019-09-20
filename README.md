@@ -64,7 +64,8 @@ For those words, we record their starting and ending character position.
 ````
 An example from part of a turkish language wiki.json file (from 2019/05/01 dump):
 ````
-"title": "Kimya",
+{
+        "title": "Kimya",
         "curid": "58",
         "text": "\nKimya\n\nKimya, maddenin yap......"
         "linked_spans": [
@@ -77,15 +78,19 @@ An example from part of a turkish language wiki.json file (from 2019/05/01 dump)
                 "label": "'Kimyasal_reaksiyon'",
                 "end": 86,
                 "start": 79
-            },
+            }, ...
+        ]
+}
 ````
 
 The wiki_{no.}.json.brief file contains only the curid, title and raw text.
 An example of the same wikipage as above:
 ````angular2
-"title": "Kimya",
+{
+        "title": "Kimya",
         "curid": "58",
         "text": "\nKimya\n\nKimya, maddenin yap......"
+}
 ````
 
 ### Wikipedia Training Data for xling-el
